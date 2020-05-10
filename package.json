@@ -23,5 +23,12 @@
   "bugs": {
     "url": "https://github.com/borisliao/mcm-dl/issues"
   },
-  "homepage": "https://github.com/borisliao/mcm-dl#readme"
+  "homepage": "https://github.com/borisliao/mcm-dl#readme",
+  "dependencies": {
+    "yauzl": "^2.10.0"
+  },
+  "devDependencies": {
+    "@types/yauzl": "^2.9.1",
+    "@types/node": "^13.13.5"
+  }
 }
