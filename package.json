@@ -4,7 +4,8 @@
   "description": "A npm module to download mods from Minecraft Twitch modpacks and convert it to a MultiMC format",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -r ts-node/register tests/**/*.test.ts",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
   },
   "repository": {
     "type": "git",
@@ -28,7 +29,14 @@
     "yauzl": "^2.10.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.13.5",
     "@types/yauzl": "^2.9.1",
-    "@types/node": "^13.13.5"
+    "chai": "^4.2.0",
+    "mocha": "^7.1.2",
+    "nyc": "^15.0.1",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.8.3"
   }
 }
