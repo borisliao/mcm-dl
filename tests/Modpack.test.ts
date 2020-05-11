@@ -1,9 +1,9 @@
-import Modpack from '../src/Modpack'
+import { determineType } from '../src/main';
 import { expect } from 'chai';
 
-describe('Modpack', function() {
-    it('should determine the right modpack type from zip', function() {
-      let pack = new Modpack("tests/sample.zip");
-      expect(pack.type).equal("twitch");
-    }); 
-  });
+describe('determineType()', function() {
+  it('should determine the right modpack type from zip', function() {
+    let pack = determineType("tests/sample.zip");
+    expect(pack).equal("twitch");
+  }); 
+});
