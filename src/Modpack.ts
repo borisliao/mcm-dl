@@ -32,29 +32,31 @@ class Modpack {
     */
     constructor(file: string) {
       this.file = file;
-      this.type = null;
-      this.determineType();
+      this.type = this.determineType();
       this.manifest = null;
     }
     /**
-     * Atempts to guess the type of modpack and fills out the type variable
+     * Atempts to guess the type of modpack.
      * 
-     * Currently supports: twitch
+     * @returns string 'twitch', 'multimc' or null
      */
-    public determineType = () => {
+    public determineType = () : string => {
       let modpackPath : string = this.file ;
-      let type = null;
       let pathExtention = path.extname(modpackPath);
       if(pathExtention == ".zip"){
         var zip = new AdmZip(modpackPath);
         var zipEntries = zip.getEntries();
-        zipEntries.forEach(function(zipEntry) {
-          if (zipEntry.entryName == "manifest.json") {
-            type = "twitch";
+
+        // Behavior is undefined if there is elements of both types of modpacks. 
+        for(let i = 0; i < zipEntries.length; i++){
+          if (zipEntries[i].entryName == "manifest.json") {
+            return "twitch";
+          } else if(zipEntries[i].entryName == "instance.cfg"){
+            return "multimc"
           }
-        });
+        }
+        return null;
       }
-      this.type = type;
     }
   }
 
