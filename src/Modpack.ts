@@ -7,7 +7,7 @@
 /**
  * Contains information that all modpack format files must adhere
  */
-abstract class Modpack {
+class Modpack {
   /** File path to modpack file (can be relative or absolute)*/
   readonly file: string;
   /** String describing the type of the modpack */
