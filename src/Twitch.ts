@@ -1,9 +1,12 @@
 import Modpack from './Modpack';
 import * as fs from 'fs';
 import * as http from 'http';
+import * as path from 'path';
+
+const API = (projectID: String, fileID: String) => 'https://addons-ecs.forgesvc.net/api/v2/addon/'+projectID+'/file/'+fileID+'/download-url'
 
 class Twitch extends Modpack{
-readonly manifest : JSON;
+  readonly manifest : JSON;
 
   constructor(file: string, type: string, author: string, version: string, manifest: JSON) {
       super(file, type, author, version);
