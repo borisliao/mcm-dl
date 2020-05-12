@@ -13,7 +13,13 @@ class Twitch extends Modpack{
       this.manifest = manifest;
   }
 
-  private getURL(URL: string): string {
+  /**
+   * Grabs the url from the forge api
+   * 
+   * @param URL complete url
+   * @param callback function with URL as argument
+   */
+  private getURL(URL: string, callback: Function) {
     https.get(URL, (res) => {
       const { statusCode } = res;
       const contentType = res.headers['content-type'];
@@ -39,7 +45,7 @@ class Twitch extends Modpack{
       res.on('data', (chunk) => { rawData += chunk; });
       res.on('end', () => {
         try {
-          return rawData;
+          callback(rawData);
         } catch (e) {
           console.error(e.message);
         }
@@ -47,7 +53,6 @@ class Twitch extends Modpack{
     }).on('error', (e) => {
       console.error(`Got error: ${e.message}`);
     });
-    return;
   }
 
   /**
@@ -69,7 +74,9 @@ class Twitch extends Modpack{
 
     for(let i = 0; i < files.length; i++){
       let downloadURL = API(files[i].projectID,files[i].fileID);
-        console.log(this.getURL(downloadURL))
+      this.getURL(downloadURL, function(url: String){
+        
+      });
     }
   }
 
