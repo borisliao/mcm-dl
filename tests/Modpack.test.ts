@@ -2,6 +2,7 @@ import * as main from '../src/main';
 import { expect } from 'chai';
 import Twitch from '../src/Twitch'
 import * as AdmZip from 'adm-zip';
+import * as fs from 'fs';
 
 describe('determineType()', function() {
   it('should determine type:\'twitch\' from sample.zip', function() {
@@ -20,5 +21,13 @@ describe('createModpack()', function() {
     expect(pack.type).equal('twitch');
     expect(pack.version).equal('4.0.1');
     expect(pack.author).equal('3upman');
+  });
+});
+
+describe('Twitch().download', function() {
+  it('should be able to download mods to ./mods', function() {
+    let pack = main.createModpack("tests/sample.zip");
+    pack.download('./mods')
+    expect(fs.existsSync('./mods')).true;
   });
 });
