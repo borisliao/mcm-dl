@@ -1,4 +1,6 @@
 import Modpack from './Modpack';
+import * as fs from 'fs';
+import * as http from 'http';
 
 class Twitch extends Modpack{
 readonly manifest : JSON;
