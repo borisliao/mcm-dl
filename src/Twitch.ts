@@ -3,9 +3,9 @@ import Modpack from './Modpack';
 class Twitch extends Modpack{
 readonly manifest : JSON;
 
-  constructor(file: string, type: string, author: string, version: string, manifest) {
+  constructor(file: string, type: string, author: string, version: string, manifest: JSON) {
       super(file, type, author, version);
-      this.manifest = require(manifest);
+      this.manifest = manifest;
   }
 
   /**
@@ -28,3 +28,5 @@ readonly manifest : JSON;
 
   }
 }
+
+export default Twitch;
