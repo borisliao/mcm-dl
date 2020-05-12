@@ -4,6 +4,7 @@ import * as https from 'https';
 import * as Path from 'path';
 
 const API = (projectID: string, fileID: string) => 'https://addons-ecs.forgesvc.net/api/v2/addon/'+projectID+'/file/'+fileID+'/download-url'
+const getFilenameFromUrl = (url : String) => url.substring(url.lastIndexOf('/') + 1);
 
 class Twitch extends Modpack{
   readonly manifest;
@@ -56,26 +57,70 @@ class Twitch extends Modpack{
   }
 
   /**
+   * Downloads a individual mod to a path given the url.
+   * 
+   * @param url Direct link to the jar file
+   * @param path string location to save to
+   */
+  private downloadMod(url: string, path: string) {
+    
+    let rawData = fs.createWriteStream(path);
+    https.get(url, (res) => {
+      const { statusCode } = res;
+      const contentType = res.headers['content-type'];
+
+      let error;
+      if (statusCode == 302) {
+        https.get(res.headers.location, (res)=>{
+          res.pipe(rawData);
+          res.on('end', () => {
+            rawData.close();
+          });
+        });
+      }
+      else if (statusCode !== 200) {
+        error = new Error('Request Failed.\n' +
+                          `Status Code: ${statusCode}`);
+      }
+      if (error) {
+        console.error(error.message);
+        // Consume response data to free up memory
+        res.resume();
+        return;
+      }
+    }).on('error', (e) => {
+      console.error(`Got error: ${e.message}`);
+    });
+
+  }
+
+  /**
    * Downloads all mods in manifest.json and saves it in a mods folder
    * 
    * @param path Location to save mods folder to
    */
   download(path: string){
-    let savePath: Path.ParsedPath;
+    let savePath: string;
     
     // Assure path will contain a mods folder
     if(Path.basename(path) == "mods"){
-      savePath = Path.parse(path);
+      savePath = path;
+      if (!fs.existsSync(savePath)){
+        fs.mkdirSync(savePath, {recursive:true});
+      }
     }else{
-      savePath = Path.parse(Path.join(path,'mods'));
+      savePath = Path.join(path,'mods');
+      if (!fs.existsSync(savePath)){
+        fs.mkdirSync(savePath, {recursive:true});
+      }
     }
 
     let files = this.manifest.files;
 
     for(let i = 0; i < files.length; i++){
       let downloadURL = API(files[i].projectID,files[i].fileID);
-      this.getURL(downloadURL, function(url: String){
-        
+      this.getURL(downloadURL, (url: string) => {
+        this.downloadMod(url, Path.join(savePath, getFilenameFromUrl(url)));
       });
     }
   }
