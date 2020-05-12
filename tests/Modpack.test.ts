@@ -25,7 +25,7 @@ describe('createModpack()', function() {
 });
 
 describe('Twitch().download', function() {
-  it('should be able to download mods to ./mods', function() {
+  it('should be create a ./mods folder', function() {
     let pack = main.createModpack("tests/sample.zip");
     pack.download('./mods')
     expect(fs.existsSync('./mods')).true;
