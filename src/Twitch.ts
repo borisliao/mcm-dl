@@ -2,6 +2,7 @@ import Modpack from './Modpack';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as Path from 'path';
+import * as AdmZip from 'adm-zip';
 
 const API = (projectID: string, fileID: string) => 'https://addons-ecs.forgesvc.net/api/v2/addon/'+projectID+'/file/'+fileID+'/download-url'
 const getFilenameFromUrl = (url : String) => url.substring(url.lastIndexOf('/') + 1);
@@ -62,8 +63,7 @@ class Twitch extends Modpack{
    * @param url Direct link to the jar file
    * @param path string location to save to
    */
-  private downloadMod(url: string, path: string) {
-    
+  private async downloadMod(url: string, path: string) {
     let rawData = fs.createWriteStream(path);
     https.get(url, (res) => {
       const { statusCode } = res;
@@ -133,7 +133,12 @@ class Twitch extends Modpack{
    * @param path Location to save MultiMC instance to
    */
   createMultiMC(path: string){
+    let folderName = Path.join(path, this.manifest.name);
+    fs.mkdirSync(folderName, {recursive:true});
 
+    this.download(folderName);
+    let zip = new AdmZip(this.file);
+    zip.extractEntryTo('overrides', folderName);
   }
 }
 

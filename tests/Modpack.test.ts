@@ -31,3 +31,11 @@ describe('Twitch().download', function() {
     expect(fs.existsSync('./mods')).true;
   });
 });
+
+describe('createMultiMC()', function() {
+  it('should copy the overrides folder', function() {
+    let pack = main.createModpack("tests/sample.zip");
+    pack.createMultiMC('./')
+    expect(fs.existsSync('./mods/OptiFine_1.12.2_HD_U_E3.jar')).true;
+  });
+});
