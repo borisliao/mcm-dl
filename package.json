@@ -26,7 +26,8 @@
   },
   "homepage": "https://github.com/borisliao/mcm-dl#readme",
   "dependencies": {
-    "adm-zip": "^0.4.14"
+    "adm-zip": "^0.4.14",
+    "fs-extra": "^9.0.0"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.4.33",
