@@ -1,8 +1,9 @@
 import Modpack from './Modpack';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as https from 'https';
 import * as Path from 'path';
 import * as AdmZip from 'adm-zip';
+import * as events from 'events';
 
 const API = (projectID: string, fileID: string) => 'https://addons-ecs.forgesvc.net/api/v2/addon/'+projectID+'/file/'+fileID+'/download-url'
 const getFilenameFromUrl = (url : String) => url.substring(url.lastIndexOf('/') + 1);
@@ -64,8 +65,9 @@ class Twitch extends Modpack{
    * 
    * @param url Direct link to the jar file
    * @param path string location to save to
+   * @param callback = callback function when finished, no inputs
    */
-  private async downloadMod(url: string, path: string) {
+  private async downloadMod(url: string, path: string, callback: Function) {
     let rawData = fs.createWriteStream(path);
     https.get(url, (res) => {
       const { statusCode } = res;
@@ -92,6 +94,8 @@ class Twitch extends Modpack{
       }
     }).on('error', (e) => {
       console.error(`Got error: ${e.message}`);
+    }).on('finish', ()=>{
+      callback();
     });
 
   }
@@ -100,6 +104,11 @@ class Twitch extends Modpack{
    * Downloads all mods in manifest.json and saves it in a mods folder
    * 
    * @param path Location to save mods folder to
+   * @returns eventEmitter
+   * 
+   * Events:
+   * 
+   * .on('download-progress', (downloaded, total))
    */
   download(path: string){
     let savePath: string;
@@ -118,13 +127,21 @@ class Twitch extends Modpack{
     }
 
     let files = this.manifest.files;
+    let eventEmitter = new events.EventEmitter();
+    
+    let downloaded = 0;
+    let total : number = files.length;
 
     for(let i = 0; i < files.length; i++){
       let downloadURL = API(files[i].projectID,files[i].fileID);
       this.getURL(downloadURL, (url: string) => {
-        this.downloadMod(url, Path.join(savePath, getFilenameFromUrl(url)));
+        this.downloadMod(url, Path.join(savePath, getFilenameFromUrl(url)),()=>{
+          downloaded++;
+          eventEmitter.emit('download-progress', downloaded, total);
+        });
       });
     }
+    return eventEmitter;
   }
 
   /**
@@ -138,9 +155,15 @@ class Twitch extends Modpack{
     let folderName = Path.join(path, this.manifest.name);
     fs.mkdirSync(folderName, {recursive:true});
 
-    this.download(folderName);
+    // let dl = this.download(folderName);
+    // dl.on('download-progress',(downloaded, total)=>{
+    //   console.log(downloaded/total);
+    // })
+    console.log(this.file);
     let zip = new AdmZip(this.file);
-    zip.extractEntryTo('overrides', folderName);
+    zip.extractEntryTo('overrides/', './');
+    fs.copySync('overrides/', folderName);
+    fs.removeSync('overrides/')
   }
 }
 

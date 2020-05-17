@@ -26,9 +26,13 @@ describe('createModpack()', function() {
 
 describe('Twitch().download', function() {
   it('should be create a ./mods folder', function() {
-    let pack = main.createModpack("tests/sample.zip");
-    pack.download('./mods')
-    expect(fs.existsSync('./mods')).true;
+    let pack :Twitch = main.createModpack("tests/sample.zip");
+    let dl = pack.download('./mods');
+    dl.on('download-progress', (downloaded, total)=>{
+      if(downloaded == total){
+        expect(fs.existsSync('./mods')).true;
+      }
+    });
   });
 });
 
@@ -36,6 +40,6 @@ describe('createMultiMC()', function() {
   it('should copy the overrides folder', function() {
     let pack = main.createModpack("tests/sample.zip");
     pack.createMultiMC('./')
-    expect(fs.existsSync('./mods/OptiFine_1.12.2_HD_U_E3.jar')).true;
+    expect(fs.existsSync('./NAM Pack 2019.4/mods/OptiFine_1.12.2_HD_U_E3.jar')).true;
   });
 });
