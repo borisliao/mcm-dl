@@ -8,9 +8,11 @@ const API = (projectID: string, fileID: string) => 'https://addons-ecs.forgesvc.
 const getFilenameFromUrl = (url : String) => url.substring(url.lastIndexOf('/') + 1);
 
 class Twitch extends Modpack{
-  readonly manifest;
+  // any type unavoidable due to lack of json basic type
+  //   Read: https://github.com/microsoft/TypeScript/issues/1897
+  readonly manifest: any;
 
-  constructor(file: string, type: string, author: string, version: string, manifest) {
+  constructor(file: string, type: string, author: string, version: string, manifest: any) {
       super(file, type, author, version);
       this.manifest = manifest;
   }
