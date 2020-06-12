@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import Twitch from '../src/Twitch'
 import * as AdmZip from 'adm-zip';
 import * as fs from 'fs';
+import { doesNotMatch } from 'assert';
 
 describe('determineType()', function() {
   it('should determine type:\'twitch\' from sample.zip', function() {
@@ -25,21 +26,23 @@ describe('createModpack()', function() {
 });
 
 describe('Twitch().download', function() {
-  it('should be create a ./mods folder', function() {
+  it('should be create a ./mods folder', async function() {
+    this.timeout(0)
     let pack :Twitch = main.createModpack("tests/sample.zip");
-    let dl = pack.download('./mods');
-    dl.on('download-progress', (downloaded, total)=>{
-      if(downloaded == total){
-        expect(fs.existsSync('./mods')).true;
-      }
+    await pack.download('./mods', (prog)=>{
+      console.log(prog)
     });
+    expect(fs.existsSync('./mods')).true;
+    
   });
 });
 
 describe('createMultiMC()', function() {
-  it('should copy the overrides folder', function() {
+  it('should copy the overrides folder', async function() {
+    this.timeout(0)
     let pack = main.createModpack("tests/sample.zip");
-    pack.createMultiMC('./')
+    await pack.createMultiMC('./', (prog)=>{
+      console.log(prog)})
     expect(fs.existsSync('./NAM Pack 2019.4/mods/OptiFine_1.12.2_HD_U_E3.jar')).true;
   });
 });

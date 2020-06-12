@@ -104,44 +104,45 @@ class Twitch extends Modpack{
    * Downloads all mods in manifest.json and saves it in a mods folder
    * 
    * @param path Location to save mods folder to
-   * @returns eventEmitter
-   * 
-   * Events:
-   * 
-   * .on('download-progress', (downloaded, total))
+   * @param progressCallback
+   * @returns Promise
    */
-  download(path: string){
+  download(path: string, cb: Function = ()=>{}){
     let savePath: string;
-    
-    // Assure path will contain a mods folder
-    if(Path.basename(path) == "mods"){
-      savePath = path;
-      if (!fs.existsSync(savePath)){
-        fs.mkdirSync(savePath, {recursive:true});
+    const promise = new Promise((resolve, reject) => {
+      // Assure path will contain a mods folder
+      if(Path.basename(path) == "mods"){
+        savePath = path;
+        if (!fs.existsSync(savePath)){
+          fs.mkdirSync(savePath, {recursive:true});
+        }
+      }else{
+        savePath = Path.join(path,'mods');
+        if (!fs.existsSync(savePath)){
+          fs.mkdirSync(savePath, {recursive:true});
+        }
       }
-    }else{
-      savePath = Path.join(path,'mods');
-      if (!fs.existsSync(savePath)){
-        fs.mkdirSync(savePath, {recursive:true});
-      }
-    }
 
-    let files = this.manifest.files;
-    let eventEmitter = new events.EventEmitter();
-    
-    let downloaded = 0;
-    let total : number = files.length;
+      let files = this.manifest.files;
+      
+      let downloaded = 0;
+      let total : number = files.length;
 
-    for(let i = 0; i < files.length; i++){
-      let downloadURL = API(files[i].projectID,files[i].fileID);
-      this.getURL(downloadURL, (url: string) => {
-        this.downloadMod(url, Path.join(savePath, getFilenameFromUrl(url)),()=>{
-          downloaded++;
-          eventEmitter.emit('download-progress', downloaded, total);
+      for(let i = 0; i < files.length; i++){
+        let downloadURL = API(files[i].projectID,files[i].fileID);
+        this.getURL(downloadURL, (url: string) => {
+          this.downloadMod(url, Path.join(savePath, getFilenameFromUrl(url)),()=>{
+            downloaded++;
+            cb({percent: downloaded/total, totalDownloaded: downloaded, total: total});
+            if(downloaded == total){
+              resolve()
+            }
+          });
         });
-      });
-    }
-    return eventEmitter;
+      }
+    });
+    
+    return promise;
   }
 
   /**
@@ -151,14 +152,11 @@ class Twitch extends Modpack{
    * 
    * @param path Location to save MultiMC instance to
    */
-  createMultiMC(path: string){
+  async createMultiMC(path: string, progressCallback: Function = () => {}){
     let folderName = Path.join(path, this.manifest.name);
     fs.mkdirSync(folderName, {recursive:true});
 
-    // let dl = this.download(folderName);
-    // dl.on('download-progress',(downloaded, total)=>{
-    //   console.log(downloaded/total);
-    // })
+    await this.download(folderName, progressCallback);
     console.log(this.file);
     let zip = new AdmZip(this.file);
     zip.extractEntryTo('overrides/', './');
