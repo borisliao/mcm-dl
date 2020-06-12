@@ -108,8 +108,12 @@ class Twitch extends Modpack{
    * @returns Promise
    */
   download(path: string, cb: Function = ()=>{}){
-    let savePath: string;
     const promise = new Promise((resolve, reject) => {
+      let files = this.manifest.files;
+
+      if(!files) { return resolve () } // return ends the function ( does not return a value )
+
+      let savePath: string;
       // Assure path will contain a mods folder
       if(Path.basename(path) == "mods"){
         savePath = path;
@@ -123,8 +127,6 @@ class Twitch extends Modpack{
         }
       }
 
-      let files = this.manifest.files;
-      
       let downloaded = 0;
       let total : number = files.length;
 
@@ -161,8 +163,10 @@ class Twitch extends Modpack{
     await this.download(mcFolder, progressCallback);
     let zip = new AdmZip(this.file);
     zip.extractAllTo(folderName, true);
-    fs.copySync(overrideFolder, mcFolder);
-    fs.removeSync(overrideFolder)
+    if(fs.existsSync(overrideFolder)){
+      fs.copySync(overrideFolder, mcFolder);
+      fs.removeSync(overrideFolder)
+    }
   }
 }
 

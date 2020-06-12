@@ -12,37 +12,58 @@ describe('determineType()', function() {
   });
 });
 
-describe('createModpack()', function() {
-  it('should return twitch pack from sample.zip', function() {
-    let pack = main.createModpack("tests/sample.zip");
+// describe('createModpack()', function() {
+//   it('should return twitch pack from sample.zip', function() {
+//     let pack = main.createModpack("tests/sample.zip");
+//     let zip = new AdmZip(pack.file);
+//     let manifest = JSON.parse(zip.readAsText('manifest.json'));
+//     let x = new Twitch("tests/sample.zip",'twitch',"3upman","4.0.1", manifest);
+//     expect(pack.file).equal('tests/sample.zip');
+//     expect(pack.type).equal('twitch');
+//     expect(pack.version).equal('4.0.1');
+//     expect(pack.author).equal('3upman');
+//   });
+// });
+
+describe('createTwitch()', function() {
+  it('should return Twitch pack from vanilla.zip', function() {
+    let pack = main.createTwitch("tests/vanilla.zip");
     let zip = new AdmZip(pack.file);
     let manifest = JSON.parse(zip.readAsText('manifest.json'));
-    let x = new Twitch("tests/sample.zip",'twitch',"3upman","4.0.1", manifest);
-    expect(pack.file).equal('tests/sample.zip');
+    expect(pack.file).equal('tests/vanilla.zip');
     expect(pack.type).equal('twitch');
-    expect(pack.version).equal('4.0.1');
+    expect(pack.version).equal('5.0.1');
     expect(pack.author).equal('3upman');
   });
 });
 
-describe('Twitch().download', function() {
-  it('should be create a ./mods folder', async function() {
+describe('createMultiMC()', function() {
+  it('should not error from vanilla.zip', async function() {
     this.timeout(0)
-    let pack :Twitch = main.createModpack("tests/sample.zip");
-    await pack.download('./mods', (prog)=>{
-      console.log(prog)
-    });
-    expect(fs.existsSync('./mods')).true;
-    
+    let pack = main.createTwitch("tests/vanilla.zip");
+    await pack.createMultiMC('./', (prog)=>{
+      console.log(prog)})
   });
 });
 
-describe('createMultiMC()', function() {
-  it('should copy the overrides folder', async function() {
-    this.timeout(0)
-    let pack = main.createModpack("tests/sample.zip");
-    await pack.createMultiMC('./', (prog)=>{
-      console.log(prog)})
-    expect(fs.existsSync('./NAM Pack 2019.4/.minecraft/mods/OptiFine_1.12.2_HD_U_E3.jar')).true;
-  });
-});
+// describe('Twitch().download', function() {
+//   it('should be create a ./mods folder', async function() {
+//     this.timeout(0)
+//     let pack :Twitch = main.createModpack("tests/sample.zip");
+//     await pack.download('./mods', (prog)=>{
+//       console.log(prog)
+//     });
+//     expect(fs.existsSync('./mods')).true;
+    
+//   });
+// });
+
+// describe('createMultiMC()', function() {
+//   it('should copy the overrides folder', async function() {
+//     this.timeout(0)
+//     let pack = main.createModpack("tests/sample.zip");
+//     await pack.createMultiMC('./', (prog)=>{
+//       console.log(prog)})
+//     expect(fs.existsSync('./NAM Pack 2019.4/.minecraft/mods/OptiFine_1.12.2_HD_U_E3.jar')).true;
+//   });
+// });
