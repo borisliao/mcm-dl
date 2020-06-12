@@ -43,6 +43,6 @@ describe('createMultiMC()', function() {
     let pack = main.createModpack("tests/sample.zip");
     await pack.createMultiMC('./', (prog)=>{
       console.log(prog)})
-    expect(fs.existsSync('./NAM Pack 2019.4/mods/OptiFine_1.12.2_HD_U_E3.jar')).true;
+    expect(fs.existsSync('./NAM Pack 2019.4/.minecraft/mods/OptiFine_1.12.2_HD_U_E3.jar')).true;
   });
 });

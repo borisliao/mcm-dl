@@ -79,6 +79,7 @@ class Twitch extends Modpack{
           res.pipe(rawData);
           res.on('end', () => {
             rawData.close();
+            callback();
           });
         });
       }
@@ -95,7 +96,6 @@ class Twitch extends Modpack{
     }).on('error', (e) => {
       console.error(`Got error: ${e.message}`);
     }).on('finish', ()=>{
-      callback();
     });
 
   }
@@ -155,13 +155,14 @@ class Twitch extends Modpack{
   async createMultiMC(path: string, progressCallback: Function = () => {}){
     let folderName = Path.join(path, this.manifest.name);
     fs.mkdirSync(folderName, {recursive:true});
+    let mcFolder = Path.join(folderName, '.minecraft')
+    let overrideFolder = Path.join(folderName, 'overrides')
 
-    await this.download(folderName, progressCallback);
-    console.log(this.file);
+    await this.download(mcFolder, progressCallback);
     let zip = new AdmZip(this.file);
-    zip.extractEntryTo('overrides/', './');
-    fs.copySync('overrides/', folderName);
-    fs.removeSync('overrides/')
+    zip.extractAllTo(folderName, true);
+    fs.copySync(overrideFolder, mcFolder);
+    fs.removeSync(overrideFolder)
   }
 }
 
